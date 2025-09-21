@@ -315,21 +315,41 @@ input:focus {
 }
 
 @media (max-width: 768px) {
+  body {
+    padding: 10px;
+    font-size: 15px;
+  }
+
   .grid {
-    grid-template-columns: 1fr;
-  }
-  .stat-grid {
-    grid-template-columns: 1fr;
-  }
-  header {
-    flex-direction: column;
+    grid-template-columns: 1fr; /* single column on mobile */
     gap: 15px;
-    text-align: center;
   }
-  .wallet-status {
-    flex-direction: column;
+
+  .stat-grid {
+    grid-template-columns: 1fr; /* stats ek ke neeche ek */
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  .action-card {
+    padding: 12px;
+  }
+
+  .card {
+    margin-bottom: 15px;
+  }
+
+  .console {
+    font-size: 12px;
+    max-height: 180px; /* mobile pe console compact */
+    overflow-y: scroll;
   }
 }
+
 
   </style>
 </head>
@@ -771,3 +791,4 @@ input:focus {
 </body>
 
 </html>
+
