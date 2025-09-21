@@ -315,40 +315,36 @@ input:focus {
 }
 
 @media (max-width: 768px) {
-  body {
-    padding: 10px;
-    font-size: 15px;
-  }
-
   .grid {
-    grid-template-columns: 1fr; /* single column on mobile */
+    display: flex;
+    flex-direction: column; /* ek ke niche ek */
     gap: 15px;
   }
 
   .stat-grid {
-    grid-template-columns: 1fr; /* stats ek ke neeche ek */
+    display: flex;
+    flex-direction: column; /* stats bhi ek column */
+    gap: 10px;
+  }
+
+  .card {
+    width: 100%;
+    margin-bottom: 15px;
   }
 
   .btn {
-    width: 100%;
+    width: 100%;  /* button full width */
     padding: 14px;
     font-size: 16px;
   }
 
-  .action-card {
-    padding: 12px;
-  }
-
-  .card {
-    margin-bottom: 15px;
-  }
-
   .console {
     font-size: 12px;
-    max-height: 180px; /* mobile pe console compact */
-    overflow-y: scroll;
+    max-height: 200px;
+    overflow-y: auto;
   }
 }
+
 
 
   </style>
@@ -791,4 +787,5 @@ input:focus {
 </body>
 
 </html>
+
 
