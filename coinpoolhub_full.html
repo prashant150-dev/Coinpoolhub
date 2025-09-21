@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CoinpoolHub — Smart Investment Platform</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+  --primary: #7b5cff;      /* Elegant Purple */
+  --primary-dark: #5636d3; /* Deep Purple */
+  --secondary: #00d4ff;    /* Bright Aqua */
+  --dark-bg: #0a0c1a;      /* Deep Navy */
+  --card-bg: rgba(19, 27, 45, 0.6); /* Glassy dark */
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text-main: #f5f7ff;    /* Softer White */
+  --text-muted: #9aa0b4;   /* Muted grey */
+  --success: #3ae374;      /* Fresh Green */
+  --warning: #ffd93d;      /* Yellow */
+  --danger: #ff4f6d;       /* Coral Red */
+  --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(160deg, #0a0c1a, #15192c);
+  color: var(--text-main);
+  line-height: 1.6;
+  padding: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo i {
+  font-size: 28px;
+}
+
+.wallet-status {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.wallet-address {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  border: 1px solid var(--primary);
+}
+
+.btn {
+  background: var(--gradient);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(123, 92, 255, 0.4);
+  transition: all 0.25s ease;
+}
+.btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 5px 18px rgba(0, 212, 255, 0.5);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+.btn-secondary:hover {
+  background: rgba(123, 92, 255, 0.1);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28c76f, #48e27f);
+  box-shadow: 0 3px 12px rgba(40, 199, 111, 0.4);
+}
+.btn-warning {
+  background: linear-gradient(135deg, #ffcc00, #ffd93d);
+  color: #2d2d2d;
+}
+.btn-danger {
+  background: linear-gradient(135deg, #ff4f6d, #ff6b81);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-title i {
+  color: var(--primary);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+.stat-box {
+  background: rgba(255,255,255,0.04);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.earnings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.earning-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+}
+.earning-label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.earning-value {
+  font-weight: 600;
+  color: var(--success);
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+.input-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+input {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background: rgba(255,255,255,0.05);
+  color: var(--text-main);
+  font-size: 14px;
+  transition: 0.25s;
+}
+input:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.25);
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+.action-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+.action-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+.action-icon {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: var(--primary);
+}
+
+.console {
+  background: rgba(19, 27, 45, 0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+.console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+#log {
+  white-space: pre-wrap;
+  font-family: 'Fira Code', monospace;
+  color: #d3e3ff;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  max-height: 240px;
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.log-time {
+  color: var(--text-muted);
+}
+.log-message {
+  color: #d3e3ff;
+}
+.log-error {
+  color: var(--danger);
+}
+.log-success {
+  color: var(--success);
+}
+
+.small {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-primary {
+  background: rgba(123, 92, 255, 0.15);
+  color: var(--primary);
+}
+.badge-success {
+  background: rgba(58, 227, 116, 0.15);
+  color: var(--success);
+}
+.badge-warning {
+  background: rgba(255, 217, 61, 0.15);
+  color: var(--warning);
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+  header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  .wallet-status {
+    flex-direction: column;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <i class="fas fa-coins"></i>
+        <span>CoinpoolHub</span>
+      </div>
+      <div class="wallet-status">
+        <div class="wallet-address" id="wallet">Not connected</div>
+        <button id="btnConnect" class="btn">
+          <i class="fas fa-plug"></i> Connect Wallet
+        </button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-user"></i> User Summary</h3>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-label">User ID</div>
+            <div class="stat-value" id="userId">-</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Sponsor</div>
+            <div class="stat-value" id="sponsor">-</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Rank</div>
+            <div class="stat-value" id="rank">-</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Earnings</div>
+            <div class="stat-value" id="totalEarnings">0 USDT</div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 20px;">
+          <div class="stat-label" style="margin-bottom: 10px;">Earnings Breakdown</div>
+          <div class="earnings-grid">
+            <div class="earning-item">
+              <span class="earning-label">Referral</span>
+              <span class="earning-value" id="referralEarnings">0</span>
+            </div>
+            <div class="earning-item">
+              <span class="earning-label">Upgrade</span>
+              <span class="earning-value" id="upgradeEarnings">0</span>
+            </div>
+            <div class="earning-item">
+              <span class="earning-label">Autopool</span>
+              <span class="earning-value" id="autopoolEarnings">0</span>
+            </div>
+            <div class="earning-item">
+              <span class="earning-label">Bonanza</span>
+              <span class="earning-value" id="bonanzaEarnings">0</span>
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 20px;">
+          <div class="stat-label" style="margin-bottom: 10px;">Network Stats</div>
+          <div class="earnings-grid">
+            <div class="earning-item">
+              <span class="earning-label">Direct Referrals</span>
+              <span class="earning-value" id="directReferrals">0</span>
+            </div>
+            <div class="earning-item">
+              <span class="earning-label">Team Count (Rank 1)</span>
+              <span class="earning-value" id="teamCount1">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-star"></i> Bonanza System</h3>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <div class="stat-label">Bonanza 25</div>
+          <div class="earnings-grid">
+            <div class="earning-item">
+              <span class="earning-label">Queue</span>
+              <span class="earning-value" id="b25q">0</span>
+            </div>
+            <div class="earning-item">
+              <span class="earning-label">Pool</span>
+              <span class="earning-value" id="b25p">0 USDT</span>
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <div class="stat-label">Bonanza 50</div>
+          <div class="earnings-grid">
+            <div class="earning-item">
+              <span class="earning-label">Queue</span>
+              <span class="earning-value" id="b50q">0</span>
+            </div>
+            <div class="earning-item">
+              <span class="earning-label">Pool</span>
+              <span class="earning-value" id="b50p">0 USDT</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="stat-box">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value" id="totalUsers">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-bolt"></i> Actions</h3>
+      </div>
+      
+      <div class="input-group">
+        <label class="input-label">Sponsor Address (for registration)</label>
+        <input id="sponsorInput" placeholder="0x..." />
+      </div>
+      
+      <div class="actions-grid">
+        <div class="action-card">
+          <div class="action-icon">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <button onclick="onRegister()" class="btn">Register</button>
+          <p class="small" style="margin-top: 10px;">Join the network with a sponsor</p>
+        </div>
+        
+        <div class="action-card">
+          <div class="action-icon">
+            <i class="fas fa-level-up-alt"></i>
+          </div>
+          <button onclick="onUpgrade()" class="btn btn-success">Upgrade Rank</button>
+          <p class="small" style="margin-top: 10px;">Upgrade to the next rank</p>
+        </div>
+        
+        <div class="action-card">
+          <div class="action-icon">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <button onclick="onJoinBonanza25()" class="btn btn-warning">Join Bonanza 25</button>
+          <p class="small" style="margin-top: 10px;">Enter the 25 USDT bonanza pool</p>
+        </div>
+        
+        <div class="action-card">
+          <div class="action-icon">
+            <i class="fas fa-crown"></i>
+          </div>
+          <button onclick="onJoinBonanza50()" class="btn btn-warning">Join Bonanza 50</button>
+          <p class="small" style="margin-top: 10px;">Enter the 50 USDT bonanza pool</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="console">
+      <div class="console-header">
+        <h3 class="card-title"><i class="fas fa-terminal"></i> Console</h3>
+        <span class="small">Live transaction logs</span>
+      </div>
+      <div id="log">Waiting for activity...</div>
+    </div>
+  </div>
+
+  <script>
+    /* --------------- CONFIG --------------- */
+    const CONTRACT_ADDRESS = "0xf88E64bF134Fd318e7a507BE8cbee366D735Ef10";
+    const RPC_CANDIDATES = [
+      "https://data-seed-prebsc-1-s1.binance.org:8545",
+      "https://bsc-testnet.publicnode.com",
+      "https://rpc.ankr.com/bsc_testnet"
+    ];
+
+    // Minimal ABI — functions we will call
+    const ABI = [
+      { "inputs":[], "name":"userCount", "outputs":[{"internalType":"uint256","name":"","type":"uint256"}], "stateMutability":"view","type":"function"},
+      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"sponsor","type":"address"},{"internalType":"uint8","name":"rank","type":"uint8"},{"internalType":"bool","name":"exists","type":"bool"}],"stateMutability":"view","type":"function"},
+      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"totalEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"referralEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"upgradeEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"autopoolEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"bonanzaEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"directReferrals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      { "inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint8","name":"","type":"uint8"}],"name":"teamCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      { "inputs":[],"name":"getBonanzaInfo","outputs":[{"internalType":"uint256","name":"q25len","type":"uint256"},{"internalType":"uint256","name":"q25head","type":"uint256"},{"internalType":"uint256","name":"pool25","type":"uint256"},{"internalType":"uint256","name":"q50len","type":"uint256"},{"internalType":"uint256","name":"q50head","type":"uint256"},{"internalType":"uint256","name":"pool50","type":"uint256"}],"stateMutability":"view","type":"function"},
+      { "inputs":[{"internalType":"address","name":"_sponsor","type":"address"}],"name":"register","outputs":[],"stateMutability":"nonpayable","type":"function"},
+      { "inputs":[{"internalType":"uint8","name":"_newRank","type":"uint8"}],"name":"upgrade","outputs":[],"stateMutability":"nonpayable","type":"function"},
+      { "inputs":[],"name":"enterBonanza25","outputs":[],"stateMutability":"nonpayable","type":"function"},
+      { "inputs":[],"name":"enterBonanza50","outputs":[],"stateMutability":"nonpayable","type":"function"}
+    ];
+
+    /* --------------- state --------------- */
+    let readProvider = null;       // JsonRpcProvider chosen
+    let readContract = null;       // read-only contract with readProvider
+    let metamaskProvider = null;   // Web3Provider (window.ethereum)
+    let signer = null;
+    let writeContract = null;
+
+    /* --------------- helpers --------------- */
+    function log(...args){
+      console.log(...args);
+      const el = document.getElementById("log");
+      const time = `<span class="log-time">${new Date().toLocaleTimeString()}</span>`;
+      const message = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+      
+      // Add appropriate styling based on message content
+      let styledMessage = message;
+      if (message.toLowerCase().includes('error') || message.toLowerCase().includes('fail')) {
+        styledMessage = `<span class="log-error">${message}</span>`;
+      } else if (message.toLowerCase().includes('success') || message.toLowerCase().includes('done')) {
+        styledMessage = `<span class="log-success">${message}</span>`;
+      } else {
+        styledMessage = `<span class="log-message">${message}</span>`;
+      }
+      
+      el.innerHTML = `${time} - ${styledMessage}<br>` + el.innerHTML;
+      
+      // Keep log to a reasonable length
+      const lines = el.innerHTML.split('<br>');
+      if (lines.length > 50) {
+        el.innerHTML = lines.slice(0, 50).join('<br>');
+      }
+    }
+    
+    function short(addr){ return addr ? (addr.slice(0,6)+"..."+addr.slice(-4)) : "-"; }
+    function formatEth(bn){ try { return (parseFloat(ethers.utils.formatEther(bn))).toFixed(6); } catch(e){return "0";} }
+
+    /* --------------- find working RPC provider --------------- */
+    async function pickWorkingProvider(){
+      for(const url of RPC_CANDIDATES){
+        try {
+          const p = new ethers.providers.JsonRpcProvider(url);
+          // quick test to ensure node responds with a block number
+          const bn = await p.getBlockNumber();
+          log("Provider OK:", url, "block:", bn);
+          return p;
+        } catch (err) {
+          log("Provider failed:", url, err.message || err);
+        }
+      }
+      // fallback to metamask provider if available
+      if(window.ethereum){
+        log("Using window.ethereum as provider fallback");
+        return new ethers.providers.Web3Provider(window.ethereum);
+      }
+      throw new Error("No working RPC provider found. Add another public RPC to RPC_CANDIDATES.");
+    }
+
+    /* --------------- init --------------- */
+    async function initReadContract(){
+      readProvider = await pickWorkingProvider();
+      readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
+    }
+
+    /* --------------- connect & signer --------------- */
+    async function connectWallet(){
+      try {
+        if(!readContract) await initReadContract();
+
+        // request accounts from MetaMask
+        if(!window.ethereum) { throw new Error("MetaMask (window.ethereum) not found"); }
+        metamaskProvider = new ethers.providers.Web3Provider(window.ethereum);
+        await metamaskProvider.send("eth_requestAccounts", []);
+        signer = metamaskProvider.getSigner();
+        const addr = await signer.getAddress();
+        document.getElementById("wallet").innerText = short(addr);
+        writeContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+        log("Connected wallet:", addr);
+        await loadUserData(addr);
+      } catch (err){
+        log("connectWallet error:", err);
+        alert("Connect error: " + (err.message||err));
+      }
+    }
+
+    /* --------------- read UI data --------------- */
+    async function loadUserData(userAddress){
+      try {
+        if(!readContract) await initReadContract();
+        log("Loading data for", userAddress || "no user");
+
+        // Total users (safe)
+        try {
+          const uc = await readContract.userCount();
+          document.getElementById("totalUsers").innerText = uc.toString();
+          log("userCount:", uc.toString());
+        } catch(e){ log("userCount failed:", e.message); }
+
+        // bonanza info
+        try {
+          const b = await readContract.getBonanzaInfo();
+          document.getElementById("b25q").innerText = b[0].toString();
+          document.getElementById("b25p").innerText = formatEth(b[2]);
+          document.getElementById("b50q").innerText = b[3].toString();
+          document.getElementById("b50p").innerText = formatEth(b[5]);
+          log("Bonanza:", b);
+        } catch(e){ log("getBonanzaInfo failed:", e.message); }
+
+        if(!userAddress) {
+          log("No user address (wallet not connected) - stopping per-user loads");
+          return;
+        }
+
+        // users() struct (id, sponsor, rank, exists)
+        let userInfo = null;
+        try {
+          userInfo = await readContract.users(userAddress);
+          document.getElementById("userId").innerText = userInfo.id.toString();
+          document.getElementById("sponsor").innerText = short(userInfo.sponsor);
+          document.getElementById("rank").innerText = userInfo.rank.toString();
+          log("users()", userInfo);
+        } catch (e){
+          log("users() read failed:", e.message);
+        }
+
+        // earnings reads (many)
+        try {
+          const [tot, ref, upg, auto, bon] = await Promise.all([
+            readContract.totalEarnings(userAddress).catch(()=>ethers.constants.Zero),
+            readContract.referralEarnings(userAddress).catch(()=>ethers.constants.Zero),
+            readContract.upgradeEarnings(userAddress).catch(()=>ethers.constants.Zero),
+            readContract.autopoolEarnings(userAddress).catch(()=>ethers.constants.Zero),
+            readContract.bonanzaEarnings(userAddress).catch(()=>ethers.constants.Zero)
+          ]);
+          document.getElementById("totalEarnings").innerText = formatEth(tot) + " USDT";
+          document.getElementById("referralEarnings").innerText = formatEth(ref);
+          document.getElementById("upgradeEarnings").innerText = formatEth(upg);
+          document.getElementById("autopoolEarnings").innerText = formatEth(auto);
+          document.getElementById("bonanzaEarnings").innerText = formatEth(bon);
+          log("Earnings:", {tot,ref,upg,auto,bon});
+        } catch(e){ log("earnings failed:", e.message); }
+
+        // referrals + team count rank 1
+        try {
+          const direct = await readContract.directReferrals(userAddress);
+          const team1 = await readContract.teamCount(userAddress, 1);
+          document.getElementById("directReferrals").innerText = direct.toString();
+          document.getElementById("teamCount1").innerText = team1.toString();
+          log("team/direct:", direct.toString(), team1.toString());
+        } catch(e){ log("team/direct failed:", e.message); }
+
+      } catch (err){
+        log("loadUserData top error:", err.message || err);
+        alert("Error loading user data: " + (err.message || err));
+      }
+    }
+
+    /* --------------- write actions --------------- */
+    async function onRegister(){
+      try {
+        const sponsor = document.getElementById("sponsorInput").value.trim();
+        if(!ethers.utils.isAddress(sponsor)) return alert("Enter valid sponsor address");
+        if(!writeContract) return alert("Connect wallet first");
+        log("Sending register(", sponsor,")");
+        const tx = await writeContract.register(sponsor);
+        log("Tx submitted:", tx.hash);
+        await tx.wait();
+        log("Register tx mined:", tx.hash);
+        await loadUserData(await signer.getAddress());
+      } catch (e){
+        log("register failed:", e.message || e);
+        alert("register error: " + (e.message || e));
+      }
+    }
+
+    async function onUpgrade(){
+      try {
+        if(!writeContract) return alert("Connect wallet first");
+        const addr = await signer.getAddress();
+        const userinfo = await readContract.users(addr);
+        const next = parseInt(userinfo.rank) + 1;
+        if(next < 1 || next > 8) return alert("No next rank available");
+        log("Upgrading to", next);
+        const tx = await writeContract.upgrade(next);
+        log("upgrade tx:", tx.hash);
+        await tx.wait();
+        log("upgrade mined.");
+        await loadUserData(addr);
+      } catch(e){
+        log("upgrade failed:", e.message || e);
+        alert("upgrade error: " + (e.message || e));
+      }
+    }
+
+    async function onJoinBonanza25(){
+      try {
+        if(!writeContract) return alert("Connect wallet first");
+        const tx = await writeContract.enterBonanza25();
+        log("join25 tx:", tx.hash);
+        await tx.wait();
+        log("join25 done");
+        await loadUserData(await signer.getAddress());
+      } catch(e){
+        log("join25 failed:", e.message || e);
+        alert("join25 error: " + (e.message || e));
+      }
+    }
+
+    async function onJoinBonanza50(){
+      try {
+        if(!writeContract) return alert("Connect wallet first");
+        const tx = await writeContract.enterBonanza50();
+        log("join50 tx:", tx.hash);
+        await tx.wait();
+        log("join50 done");
+        await loadUserData(await signer.getAddress());
+      } catch(e){
+        log("join50 failed:", e.message || e);
+        alert("join50 error: " + (e.message || e));
+      }
+    }
+
+    /* ---------- attach handlers ---------- */
+    document.getElementById("btnConnect").addEventListener("click", async ()=>{
+      await connectWallet();
+    });
+
+    // Initialize on load
+    window.addEventListener('load', async () => {
+      log("CoinpoolHub interface initialized");
+      try {
+        await initReadContract();
+        log("Read contract initialized successfully");
+      } catch (e) {
+        log("Initialization error:", e.message);
+      }
+    });
+  </script>
+</body>
+</html>
