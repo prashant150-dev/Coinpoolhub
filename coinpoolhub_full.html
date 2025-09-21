@@ -6,10 +6,8 @@
 
 
   <title>CoinpoolHub — Smart Investment Platform</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
+:root {
   --primary: #7b5cff;      /* Elegant Purple */
   --primary-dark: #5636d3; /* Deep Purple */
   --secondary: #00d4ff;    /* Bright Aqua */
@@ -314,28 +312,37 @@ input:focus {
   color: var(--warning);
 }
 
+/* ✅ Mobile Responsive Fix */
 @media screen and (max-width: 768px) {
-  .grid {
-    display: block !important; /* grid hata ke block layout */
+  header {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
   }
 
-  .card {
-    width: 100% !important;
-    margin-bottom: 15px;
+  .wallet-status {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr !important; /* force single column */
   }
 
   .stat-grid {
-    display: block !important;
+    grid-template-columns: 1fr !important;
   }
 
-  .earning-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+  .earnings-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr !important;
   }
 
   .btn {
-    width: 100% !important;
+    width: 100%;
     padding: 14px;
     font-size: 16px;
   }
@@ -346,11 +353,8 @@ input:focus {
     overflow-y: auto;
   }
 }
+</style>
 
-
-
-
-  </style>
 </head>
 <body>
   <div class="container">
@@ -790,6 +794,7 @@ input:focus {
 </body>
 
 </html>
+
 
 
 
